@@ -1,0 +1,447 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Lenis pilote le scroll — pas de smooth natif concurrent */
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: #fbf6ea;
+  font-family: "Archivo", system-ui, sans-serif;
+  font-weight: 400;
+  color: #16140f;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #b8902f;
+  color: #fff;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Display architectural — Fraunces avec réglages optiques doux */
+.font-display {
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+}
+
+/* Eyebrow / label éditorial */
+.lux-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: #8c6d22;
+}
+
+.lux-eyebrow::before {
+  content: "";
+  height: 1px;
+  width: 2.25rem;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.lux-eyebrow--center::before {
+  display: none;
+}
+
+/* Champs de formulaire */
+.lux-input {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid rgba(184, 144, 47, 0.32);
+  background: #fcfaf4;
+  padding: 14px 16px;
+  color: #16140f;
+  outline: none;
+  transition: border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lux-input::placeholder {
+  color: #6b6455;
+  opacity: 0.7;
+}
+
+.lux-input:focus {
+  border-color: #b8902f;
+  box-shadow: 0 0 0 3px rgba(184, 144, 47, 0.14);
+}
+
+/* Ligne fine réutilisable */
+.lux-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e4d9c2 20%, #e4d9c2 80%, transparent);
+}
+
+/* ---- Système de motion (sur base Lenis) ---- */
+/* Reveal : opacité + translation, déclenché par IntersectionObserver via .is-visible */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal="fade"] {
+  transform: none;
+}
+
+[data-reveal="line"] {
+  transform: translateY(115%);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Masque pour révélations de lignes de titre */
+.lux-line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+/* Zoom d'image très subtil au scroll (parallax léger géré en JS) */
+.lux-media {
+  overflow: hidden;
+}
+
+.lux-media img {
+  will-change: transform;
+}
+
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+.animate-heroFloat {
+  animation: heroFloat 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* ---- Intro loader (portail Luxos qui s'ouvre) ---- */
+html.intro-lock,
+html.intro-lock body {
+  overflow: hidden !important;
+  height: 100%;
+}
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: #16140f;
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro[data-phase="gone"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Média (héros) derrière le portail — deviendra le héros réel */
+.intro-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 68% center;
+  transform: scale(1.06);
+  animation: introKen 7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes introKen {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.13);
+  }
+}
+
+/* Portail : deux battants en perspective 3D */
+.gate {
+  position: absolute;
+  inset: 0;
+  perspective: 2200px;
+  transform-style: preserve-3d;
+}
+
+.gate-leaf {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50.3%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: linear-gradient(180deg, #fdfcf8 0%, #f3eee1 58%, #e8dfce 100%);
+  box-shadow: inset 0 0 150px rgba(22, 20, 15, 0.12);
+  opacity: 0;
+  transform: rotateY(0deg);
+  transition: transform 1.2s cubic-bezier(0.76, 0, 0.18, 1);
+  animation: gateIn 0.7s ease 0.1s forwards;
+  will-change: transform;
+}
+
+@keyframes gateIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.gate-leaf--left {
+  left: 0;
+  transform-origin: left center;
+  border-right: 2px solid rgba(184, 144, 47, 0.55);
+}
+.gate-leaf--right {
+  right: 0;
+  transform-origin: right center;
+  border-left: 2px solid rgba(184, 144, 47, 0.55);
+}
+.gate-leaf--left .gate-face {
+  transform: scaleX(-1);
+}
+
+.gate-face {
+  position: absolute;
+  inset: 0;
+}
+
+/* Barreaux verticaux (métal blanc, gravure) */
+.gate-pickets {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 17%;
+  bottom: 19%;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(22, 20, 15, 0.22) 0 1.5px,
+    transparent 1.5px 3px,
+    rgba(255, 255, 255, 0.7) 3px 4px,
+    transparent 4px 46px
+  );
+}
+
+/* Crête (ferronnerie or) */
+.gate-arch {
+  position: absolute;
+  top: 2%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  color: #b8902f;
+}
+
+/* Panneau bas + médaillon or */
+.gate-panel {
+  position: absolute;
+  left: 7%;
+  right: 4%;
+  bottom: 4%;
+  height: 13%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(22, 20, 15, 0.18);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fbf8f0, #ece4d3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 1px 3px rgba(22, 20, 15, 0.12);
+}
+.gate-medallion {
+  width: 44%;
+  max-width: 180px;
+  color: #b8902f;
+}
+
+/* Jointure centrale : poignée + emblème */
+.gate-seam {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity 0.4s ease;
+}
+.gate-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #b8902f;
+  filter: drop-shadow(0 2px 3px rgba(22, 20, 15, 0.25));
+}
+.gate-spire {
+  position: absolute;
+  top: 1%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #b8902f;
+}
+
+.gate-emblem {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 1.5rem 2.4rem;
+  background: radial-gradient(closest-side, rgba(253, 252, 248, 0.96), rgba(253, 252, 248, 0));
+}
+.gate-emblem .e-eyebrow {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #8c6d22;
+  opacity: 0;
+  animation: introFade 0.9s ease 0.55s forwards;
+}
+.gate-emblem .e-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.gate-emblem .e-line > span {
+  display: block;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  color: #16140f;
+  transform: translateY(115%);
+  animation: introLine 1s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+}
+.gate-emblem .e-line:nth-child(3) > span {
+  color: #b8902f;
+  font-style: italic;
+  animation-delay: 0.67s;
+}
+
+@keyframes introLine {
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes introFade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* OUVERTURE : les battants pivotent, l'emblème s'efface */
+.intro[data-phase="open"] .gate-leaf--left {
+  transform: rotateY(-118deg);
+}
+.intro[data-phase="open"] .gate-leaf--right {
+  transform: rotateY(118deg);
+}
+.intro[data-phase="open"] .gate-seam {
+  opacity: 0;
+}
+
+/* Mobile : barreaux plus serrés, texte adapté */
+@media (max-width: 640px) {
+  .gate-pickets {
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(22, 20, 15, 0.16) 0 1px,
+      transparent 1px 2px,
+      rgba(255, 255, 255, 0.6) 2px 3px,
+      transparent 3px 32px
+    );
+  }
+  .gate-emblem {
+    padding: 1.1rem 1.4rem;
+  }
+  .gate-emblem .e-line > span {
+    font-size: clamp(1.3rem, 6.5vw, 1.9rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-leaf,
+  .intro-media,
+  .gate-emblem .e-line > span,
+  .gate-emblem .e-eyebrow {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .gate-emblem .e-line > span {
+    transform: none;
+  }
+  .intro-media {
+    transform: scale(1.03);
+  }
+  .intro[data-phase="open"] .gate-leaf--left,
+  .intro[data-phase="open"] .gate-leaf--right {
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  [data-reveal],
+  [data-reveal="line"] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .animate-heroFloat,
+  .animate-pulseRing {
+    animation: none !important;
+  }
+  .lux-media img {
+    transform: none !important;
+  }
+}
